@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: dignio/generate-manifest@v1.0.3
+      - uses: dignio/generate-manifest@v1.0.4
         name: Generate the Kubernetes manifest
         id: generate_manifest
         with:
