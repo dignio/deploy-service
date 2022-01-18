@@ -10,7 +10,7 @@ on:
   pull_request:
     types: [ opened, synchronize ]
 jobs:
-  create-manifest:
+  steps:
   - uses: dignio/generate-manifest@v1
     name: Generate the Kubernetes manifest
     id: generate_manifest
