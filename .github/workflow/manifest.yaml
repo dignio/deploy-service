@@ -1,0 +1,30 @@
+name: GitHub Actions Demo
+on:
+  push:
+    branches:
+      - master
+      - release/**
+      - hotfix/**
+      - experimental/**
+      - test/**
+  pull_request:
+    types: [ opened, synchronize ]
+jobs:
+  create-manifest:
+  - uses: dignio/generate-manifest@v1
+    name: Generate the Kubernetes manifest
+    id: generate_manifest
+    needs: build_and_push
+    with:
+      # These must be specified for the action to work
+      app_name: prevent-ui
+      namespace: development
+      docker_image: 833870238474.dkr.ecr.eu-north-1.amazonaws.com/prevent-ui:9628f958eb4a69571cfee558624fa0a33fa49c4f
+
+      # These are optional
+      replicas: 1
+      port: 80
+      container_port: 80
+      ingress: true
+      ingress_host: prevent.dev.dignio.dev
+      ingress_path: /
