@@ -41,7 +41,7 @@ jobs:
 
       - name: Deploy to the EKS cluster
         env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG }}
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
         run: |
           # Get the kubectl binary
           curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.20.4/2021-04-12/bin/linux/amd64/kubectl
