@@ -41,7 +41,7 @@ jobs:
           ingress_path: /
 
       - name: Echo the manifest output to a tmp file
-        run: "echo ${{steps.generate_manifest.outputs.manifest}} | base64 --decode >> $GITHUB_WORKSPACE/k8s.manifest.yaml"
+        run: "echo ${{steps.generate_manifest.outputs.manifest}} | base64 --decode >> k8s.manifest.yaml"
 
       - name: Deploy to EKS cluster
         uses: Consensys/kubernetes-action@master
