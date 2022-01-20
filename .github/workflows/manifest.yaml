@@ -53,7 +53,8 @@ jobs:
           chmod +x kubectl
 
           # Handle the kube config
-          export KUBECONFIG=$(echo $KUBE_CONFIG | base64 -d)
+          echo ${KUBE_CONFIG} | base64 -d > kubeconfig
+          export KUBECONFIG=kubeconfig
 
           # Apply to the EKS cluster
           ./kubectl apply -f $GITHUB_WORKSPACE/k8s.manifest.yaml
