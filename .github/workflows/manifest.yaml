@@ -41,14 +41,14 @@ jobs:
           ingress_path: /
 
       - name: Echo the manifest output to a tmp file
-        run: "echo ${{steps.generate_manifest.outputs.manifest}} | base64 --decode >> /tmp/k8s.manifest.yaml"
+        run: "echo ${{steps.generate_manifest.outputs.manifest}} | base64 --decode >> $GITHUB_WORKSPACE/tmp/k8s.manifest.yaml"
 
       - name: Deploy to EKS cluster
         uses: Consensys/kubernetes-action@master
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG }}
         with:
-          args: apply -f /tmp/k8s.manifest.yaml
+          args: apply -f $GITHUB_WORKSPACE/tmp/k8s.manifest.yaml
 
 #      - name: Authenticate with Kubernetes
 #        uses: azure/k8s-set-context@v1
