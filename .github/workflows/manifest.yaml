@@ -23,7 +23,7 @@ jobs:
           # These must be specified for the action to work
           app_name: prevent-ui
           namespace: development
-          docker_image: 833870238474.dkr.ecr.eu-north-1.amazonaws.com/prevent-ui:9628f958eb4a69571cfee558624fa0a33fa49c4f
+          docker_image: 387308402250.dkr.ecr.eu-north-1.amazonaws.com/prevent-ui:9628f958eb4a69571cfee558624fa0a33fa49c4f
 
           # These are optional
           replicas: 1
@@ -36,6 +36,7 @@ jobs:
       - name: Echo the manifest output to a tmp file
         run: "echo ${{steps.generate_manifest.outputs.manifest}} | base64 --decode > $GITHUB_WORKSPACE/k8s.manifest.yaml"
 
+      # Change to use OIDC provider
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
