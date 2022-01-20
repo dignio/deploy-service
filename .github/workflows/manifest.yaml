@@ -50,7 +50,6 @@ jobs:
         uses: Consensys/kubernetes-action@master
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG }}
-        run: "ls -alh"
         with:
           args: apply -f ./k8s.manifest.yaml
 
