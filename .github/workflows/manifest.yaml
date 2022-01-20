@@ -47,4 +47,4 @@ jobs:
         with:
           manifests: |
               /tmp/k8s.manifest.yaml
-          kubectl-version: '1.20'
+          kubectl-version: 'latest'
