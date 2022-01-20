@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: dignio/generate-manifest@v1.0.4
+      - uses: dignio/generate-manifest@v1
         name: Generate the Kubernetes manifest
         id: generate_manifest
         with:
@@ -33,5 +33,18 @@ jobs:
           ingress_host: prevent.dev.dignio.dev
           ingress_path: /
 
-      - name: echo the manifest output
-        run: "echo ${{steps.generate_manifest.manifest}}"
+      - name: Echo the manifest output to a tmp file
+        run: "echo ${{steps.generate_manifest.outputs.manifest}} | base64 --decode >> /tmp/k8s.manifest.yaml"
+
+      - name: Authenticate with Kubernetes
+        uses: azure/k8s-set-context@v1
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Deploy to Kubernetes
+        uses: Azure/k8s-deploy@v1
+        with:
+          manifests: |
+              /tmp/k8s.manifest.yaml
+          kubectl-version: '1.20'
