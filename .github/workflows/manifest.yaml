@@ -44,41 +44,30 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-north-1
 
-      - name: Deploy to the EKS cluster
-        env:
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
-        run: |
+#      - name: Deploy to the EKS cluster
+#        env:
+#          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+#        run: |
           # Get the kubectl binary
-          curl -s -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.20.4/2021-04-12/bin/linux/amd64/kubectl
-          chmod +x kubectl
+#          curl -s -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.20.4/2021-04-12/bin/linux/amd64/kubectl
+#          chmod +x kubectl
 
           # Handle the kube config
-          echo ${KUBE_CONFIG} | base64 -d > kubeconfig
-          export KUBECONFIG=kubeconfig
+#          echo ${KUBE_CONFIG} | base64 -d > kubeconfig
+#          export KUBECONFIG=kubeconfig
 
           # Apply to the EKS cluster
-          ./kubectl apply -f $GITHUB_WORKSPACE/k8s.manifest.yaml
+#          ./kubectl apply -f $GITHUB_WORKSPACE/k8s.manifest.yaml
 
+      - name: Authenticate with Kubernetes
+        uses: azure/k8s-set-context@v1
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
 
-#      - name: Deploy to EKS cluster
-#        uses: Consensys/kubernetes-action@master
-#        env:
-#          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG }}
-#          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#          AWS_REGION: eu-north-1
-#        with:
-#          args: apply -f k8s.manifest.yaml
-
-#      - name: Authenticate with Kubernetes
-#        uses: azure/k8s-set-context@v1
-#        with:
-#          method: kubeconfig
-#          kubeconfig: ${{ secrets.KUBE_CONFIG }}
-
-#      - name: Deploy to Kubernetes
-#        uses: Azure/k8s-deploy@v1
-#        with:
-#          manifests: |
-#              $GITHUB_WORKSPACE/k8s.manifest.yaml
-#          kubectl-version: 'latest'
+      - name: Deploy to Kubernetes
+        uses: Azure/k8s-deploy@v1
+        with:
+          manifests: |
+              $GITHUB_WORKSPACE/k8s.manifest.yaml
+          kubectl-version: 'latest'
