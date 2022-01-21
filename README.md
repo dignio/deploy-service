@@ -21,3 +21,15 @@ A reusable workflow that you can use to deploy a service to Kubernetes.
           aws-region: eu-north-1
 
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+      - name: Authenticate with Kubernetes
+        uses: azure/k8s-set-context@v1
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Deploy to Kubernetes
+        uses: Azure/k8s-deploy@v1
+        with:
+          manifests: |
+              k8s.manifest.yaml
+          kubectl-version: 'latest'
