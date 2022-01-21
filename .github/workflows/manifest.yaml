@@ -40,7 +40,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: k8s-manifest
-          path: $GITHUB_WORKSPACE/k8s.manifest.yaml
+          path: k8s.manifest.yaml
 
       # Change to use OIDC provider
       - name: Configure AWS credentials
