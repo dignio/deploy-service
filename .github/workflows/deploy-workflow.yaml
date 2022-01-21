@@ -1,0 +1,103 @@
+name: This workflow creates the k8s manifest file and deploys it
+
+on:
+  workflow_call:
+    inputs:
+      # Required
+      app_name:
+        required: true
+        type: string
+      namespace:
+        required: true
+        type: string
+      docker_image:
+        required: true
+        type: string
+      aws_region:
+        required: true
+        type: string
+
+      # Optional
+      replicas:
+        required: false
+        type: int
+      port:
+        required: false
+        type: int
+      container_port:
+        required: false
+        type: int
+      ingress:
+        required: false
+        type: bool
+      ingress_host:
+        required: false
+        type: string
+      ingress_path:
+        required: false
+        type: string
+    # === Secret time, these secrets is required and needed to make the deploy work
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+
+      # This has to be a base64 encoded kube config file
+      KUBE_CONFIG:
+        required: true
+
+jobs:
+  deploy:
+    name: "Create manifest file"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: dignio/generate-manifest@v1
+        name: Generate the Kubernetes manifest
+        id: generate_manifest
+        with:
+          # These must be specified for the action to work
+          app_name: ${{ inputs.app_name }}
+          namespace: ${{ inputs.namespace }}
+          docker_image: ${{ inputs.docker_image }}
+
+          # These are optional
+          replicas: ${{ inputs.replicas }}
+          port: ${{ inputs.port }}
+          container_port: ${{ inputs.container_port }}
+          ingress: ${{ inputs.ingress }}
+          ingress_host: ${{ inputs.ingress_host }}
+          ingress_path: ${{ inputs.ingress_path }}
+
+      - name: Echo the manifest output to a file
+        run: "echo ${{steps.generate_manifest.outputs.manifest}} | base64 --decode > $GITHUB_WORKSPACE/k8s.manifest.yaml"
+
+      - name: Upload the manifest as an artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: k8s-manifest
+          path: k8s.manifest.yaml
+
+      # Configure AWS for the deploy
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ inputs.aws_region }}
+
+      - name: Deploy to the EKS cluster
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        run: |
+          # Get the kubectl binary
+          curl -s -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.20.4/2021-04-12/bin/linux/amd64/kubectl
+          chmod +x kubectl
+
+          # Handle the kube config
+          echo ${KUBE_CONFIG} | base64 -d > kubeconfig
+          export KUBECONFIG=kubeconfig
+
+          # Apply to the EKS cluster
+          ./kubectl apply -f $GITHUB_WORKSPACE/k8s.manifest.yaml
