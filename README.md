@@ -12,7 +12,7 @@ jobs:
       # Required
       app_name: prevent-ui
       namespace: development
-      docker_image:
+      docker_image: <org_id>.dkr.ecr.<aws_region>.amazonaws.com/<repo_name>:<docker_tag>
       aws_region: eu-north-1
 
       # Optional
