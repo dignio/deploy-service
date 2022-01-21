@@ -69,5 +69,5 @@ jobs:
         uses: Azure/k8s-deploy@v1
         with:
           manifests: |
-              $GITHUB_WORKSPACE/k8s.manifest.yaml
+              k8s.manifest.yaml
           kubectl-version: 'latest'
