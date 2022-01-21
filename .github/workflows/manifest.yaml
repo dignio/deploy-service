@@ -36,6 +36,12 @@ jobs:
       - name: Echo the manifest output to a tmp file
         run: "echo ${{steps.generate_manifest.outputs.manifest}} | base64 --decode > $GITHUB_WORKSPACE/k8s.manifest.yaml"
 
+      # Save the manifest as an artifact
+      - uses: actions/upload-artifact@v2
+        with:
+          name: k8s-manifest
+          path: $GITHUB_WORKSPACE/k8s.manifest.yaml
+
       # Change to use OIDC provider
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
