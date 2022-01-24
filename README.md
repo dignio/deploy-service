@@ -11,7 +11,6 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
       - uses: dignio/deploy-service@v1
         with:
           # === Required
