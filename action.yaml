@@ -85,18 +85,16 @@ runs:
         aws-secret-access-key: ${{ inputs.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ inputs.aws_region }}
 
-    - name: Deploy to the EKS cluster
-      shell: bash
-      env:
-        KUBE_CONFIG: ${{ inputs.KUBE_CONFIG }}
-      run: |
-        # Get the kubectl binary
-        curl -s -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.20.4/2021-04-12/bin/linux/amd64/kubectl
-        chmod +x kubectl
+    - name: Authenticate with Kubernetes
+      uses: azure/k8s-set-context@v1
+      with:
+        method: kubeconfig
+        kubeconfig: ${{ inputs.KUBE_CONFIG }}
 
-        # Handle the kube config
-        echo ${KUBE_CONFIG} | base64 -d > kubeconfig
-        export KUBECONFIG=kubeconfig
-
-        # Apply to the EKS cluster
-        ./kubectl apply -f $GITHUB_WORKSPACE/k8s.manifest.yaml
+    - name: Deploy to Kubernetes
+      uses: Azure/k8s-deploy@v1
+      with:
+        namespace: ${{ inputs.namespace }}
+        manifests: |
+            k8s.manifest.yaml
+        kubectl-version: 'latest'
