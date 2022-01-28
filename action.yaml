@@ -6,6 +6,9 @@ inputs:
   app_name:
     description: The application name
     required: true
+  service_type:
+    description: The service type. I.e. webservice
+    required: true
   namespace:
     description: The Kubernetes namespace
     required: true
@@ -50,12 +53,13 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: dignio/generate-manifest@v1
+    - uses: dignio/generate-manifest@v2
       name: Generate the Kubernetes manifest
       id: generate_manifest
       with:
         # === These must be specified for the action to work
         app_name: ${{ inputs.app_name }}
+        service_type: ${{ inputs.service_type }}
         namespace: ${{ inputs.namespace }}
         docker_image: ${{ inputs.docker_image }}
 
