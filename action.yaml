@@ -53,7 +53,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: dignio/generate-manifest@v1.1.0
+    - uses: dignio/generate-manifest@v1.1
       name: Generate the Kubernetes manifest
       id: generate_manifest
       with:
