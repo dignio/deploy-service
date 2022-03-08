@@ -68,6 +68,7 @@ runs:
         # === These must be specified for the action to work
         app_name: ${{ inputs.app_name }}
         service_type: ${{ inputs.service_type }}
+        instance: ${{ inputs.instance }}
         namespace: ${{ inputs.namespace }}
         docker_image: ${{ inputs.docker_image }}
 
