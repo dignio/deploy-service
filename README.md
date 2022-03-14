@@ -16,11 +16,13 @@ jobs:
           # === Required
           app_name: prevent-ui
           service_type: webservice
+          instance: development
           namespace: development
           docker_image: <org_id>.dkr.ecr.<aws_region>.amazonaws.com/<repo_name>:<docker_tag>
           aws_region: eu-north-1
 
           # === Optional
+          healthcheck_path: /healthz
           replicas: 1
           port: 80
           container_port: 3000
