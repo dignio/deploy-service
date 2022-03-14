@@ -23,6 +23,9 @@ inputs:
     required: true
 
   # === Optional
+  healthcheck_path:
+    description: Your healthcheck path. I.e. /healthz
+    required: false
   replicas:
     description: How many replicas you need
     required: false
@@ -61,7 +64,7 @@ runs:
       id: manifest
       run: echo "::set-output name=filename::${{ inputs.instance }}.k8s.manifest.yaml"
 
-    - uses: dignio/generate-manifest@v2.1.0
+    - uses: dignio/generate-manifest@v2.2.0
       name: Generate the Kubernetes manifest
       id: generate_manifest
       with:
@@ -73,6 +76,7 @@ runs:
         docker_image: ${{ inputs.docker_image }}
 
         # === These are optional
+        healthcheck_path: ${{ inputs.healthcheck_path }}
         replicas: ${{ inputs.replicas }}
         port: ${{ inputs.port }}
         container_port: ${{ inputs.container_port }}
