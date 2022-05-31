@@ -9,9 +9,6 @@ inputs:
   service_type:
     description: The service type. I.e. webservice
     required: true
-  instance:
-    description: What instance to deploy to. I.e. development
-    required: true
   namespace:
     description: The Kubernetes namespace
     required: true
@@ -23,9 +20,6 @@ inputs:
     required: true
 
   # === Optional
-  healthcheck_path:
-    description: Your healthcheck path. I.e. /healthz
-    required: false
   replicas:
     description: How many replicas you need
     required: false
@@ -35,15 +29,26 @@ inputs:
   container_port:
     description: The Kubernetes application pod port
     required: false
-  ingress:
-    description: Should it has its own ingress?
+  container_size:
+    description: The size of the container. CPU/Memory. small|medium|large|xlarge
     required: false
-  ingress_host:
-    description: The host connected to the ingress
+    default: ''
+  container_command:
+    description: The command to be passed to the docker container "['curl']"
     required: false
-  ingress_path:
-    description: The application path
+    default: ''
+  container_args:
+    description: The args to be passed to the docker container "['-I', 'https://www.google.com']"
     required: false
+    default: ''
+  secretsmanager:
+    description: Enable secrets manager. To fetch secrets you have to provide the cluster name.
+    required: false
+    default: 'false'
+  cluster_name:
+    description: The clustername
+    required: false
+    default: ''
 
   # === Secret time, these secrets is required and needed to make the deploy work
   AWS_ACCESS_KEY_ID:
@@ -64,25 +69,26 @@ runs:
       id: manifest
       run: echo "::set-output name=filename::${{ inputs.instance }}.k8s.manifest.yaml"
 
-    - uses: dignio/generate-manifest@v2.2.1
+    - uses: dignio/generate-manifest@PLAT-476/prevent-apii
       name: Generate the Kubernetes manifest
       id: generate_manifest
       with:
         # === These must be specified for the action to work
         app_name: ${{ inputs.app_name }}
         service_type: ${{ inputs.service_type }}
-        instance: ${{ inputs.instance }}
         namespace: ${{ inputs.namespace }}
         docker_image: ${{ inputs.docker_image }}
 
         # === These are optional
-        healthcheck_path: ${{ inputs.healthcheck_path }}
         replicas: ${{ inputs.replicas }}
         port: ${{ inputs.port }}
         container_port: ${{ inputs.container_port }}
-        ingress: ${{ inputs.ingress }}
-        ingress_host: ${{ inputs.ingress_host }}
-        ingress_path: ${{ inputs.ingress_path }}
+        container_size: ${{ inputs.container_size }}
+        container_command: ${{ inputs.container_command }}
+        container_args: ${{ inputs.container_args }}
+        secretsmanager: ${{ inputs.secretsmanager }}
+        cluster_name: ${{ inputs.cluster_name }}
+
 
     - name: Echo the manifest output to a file
       shell: bash
