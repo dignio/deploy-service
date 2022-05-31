@@ -6,6 +6,9 @@ inputs:
   app_name:
     description: The application name
     required: true
+  instance:
+    description: The instance. I.e. development
+    required: true
   service_type:
     description: The service type. I.e. webservice
     required: true

@@ -15,6 +15,7 @@ jobs:
         with:
           # === Required
           app_name: prevent-demo
+          instance: development
           service_type: webservice
           namespace: development
           docker_image: <org_id>.dkr.ecr.<aws_region>.amazonaws.com/<repo_name>:<docker_tag>
