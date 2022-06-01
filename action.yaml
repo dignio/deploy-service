@@ -70,7 +70,7 @@ runs:
     - name: Create the Manifest filename
       shell: bash
       id: manifest
-      run: echo "::set-output name=filename::${{ inputs.instance }}.k8s.manifest.yaml"
+      run: echo "::set-output name=filename::${{ inputs.instance }}-${{ inputs.app_name }}.k8s.manifest.yaml"
 
     - uses: dignio/generate-manifest@PLAT-476/prevent-apii
       name: Generate the Kubernetes manifest
