@@ -92,7 +92,6 @@ runs:
         secretsmanager: ${{ inputs.secretsmanager }}
         cluster_name: ${{ inputs.cluster_name }}
 
-
     - name: Echo the manifest output to a file
       shell: bash
       run: "echo ${{steps.generate_manifest.outputs.manifest}} | base64 --decode > $GITHUB_WORKSPACE/${{ steps.manifest.outputs.filename }}"
