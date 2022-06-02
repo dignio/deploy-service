@@ -99,7 +99,7 @@ runs:
     - name: Upload the manifest as an artifact
       uses: actions/upload-artifact@v2
       with:
-        name: "${{ inputs.instance }}-k8s-manifest"
+        name: "${{ steps.manifest.outputs.filename }}"
         path: "${{ steps.manifest.outputs.filename }}"
 
     # === Configure AWS for the deploy
