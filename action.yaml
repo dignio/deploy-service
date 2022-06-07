@@ -21,6 +21,9 @@ inputs:
   aws_region:
     description: AWS region where the EKS cluster lives
     required: true
+  aws_role:
+    description: The role used to grant access to AWS
+    required: true
 
   # === Optional
   replicas:
@@ -54,9 +57,6 @@ inputs:
     default: ''
 
   # === Secret time, these secrets is required and needed to make the deploy work
-  AWS_ROLE:
-    description: The role used to grant access to AWS
-    required: true
   KUBE_CONFIG:
     description: The base64 encoded kube config file
     required: true
@@ -103,7 +103,7 @@ runs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
-        role-to-assume: ${{ inputs.AWS_ROLE }}
+        role-to-assume: ${{ inputs.aws_role }}
         role-session-name: GithubActionsSession
         aws-region: ${{ inputs.aws_region }}
 
