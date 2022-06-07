@@ -54,11 +54,8 @@ inputs:
     default: ''
 
   # === Secret time, these secrets is required and needed to make the deploy work
-  AWS_ACCESS_KEY_ID:
-    description: The AWS access key
-    required: true
-  AWS_SECRET_ACCESS_KEY:
-    description: The AWS secret key
+  AWS_ROLE:
+    description: The role used to grant access to AWS
     required: true
   KUBE_CONFIG:
     description: The base64 encoded kube config file
@@ -106,8 +103,8 @@ runs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
-        aws-access-key-id: ${{ inputs.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ inputs.AWS_SECRET_ACCESS_KEY }}
+        role-to-assume: ${{ inputs.AWS_ROLE }}
+        role-session-name: GithubActionsSession
         aws-region: ${{ inputs.aws_region }}
 
     - name: Authenticate with Kubernetes
