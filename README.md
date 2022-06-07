@@ -20,6 +20,7 @@ jobs:
           namespace: development
           docker_image: <org_id>.dkr.ecr.<aws_region>.amazonaws.com/<repo_name>:<docker_tag>
           aws_region: eu-north-1
+          aws_role: <insert_aws_role>
 
           # === Optional
           replicas: 1
@@ -32,8 +33,6 @@ jobs:
           cluster_name: demo-cluster
 
           # === Required secrets
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           # This has to be a base64 encoded kube config file
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
 ```
