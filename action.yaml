@@ -15,6 +15,9 @@ inputs:
   namespace:
     description: The Kubernetes namespace
     required: true
+  cluster_name:
+    description: The cluster name
+    required: true
   docker_image:
     description: The docker image tag URL
     required: true
@@ -51,15 +54,6 @@ inputs:
     description: Enable secrets manager. To fetch secrets you have to provide the cluster name.
     required: false
     default: 'false'
-  cluster_name:
-    description: The clustername
-    required: false
-    default: ''
-
-  # === Secret time, these secrets is required and needed to make the deploy work
-  KUBE_CONFIG:
-    description: The base64 encoded kube config file
-    required: true
 
 runs:
   using: composite
@@ -107,11 +101,22 @@ runs:
         role-session-name: GithubActionsSession
         aws-region: ${{ inputs.aws_region }}
 
+    # === Dynamically create the kube config
+    - name: Create the kube config
+      id: kubeconfig
+      shell: bash
+      run: |
+        aws eks update-kubeconfig --name=${{ inputs.cluster_name }} --region=${{ inputs.aws_region }} --kubeconfig=/tmp/kubeconfig.yaml
+
+        kubeconfig=$(cat /tmp/kubeconfig.yaml)
+
+        echo "::set-output name=kubeconfig::$kubeconfig"
+
     - name: Authenticate with Kubernetes
       uses: azure/k8s-set-context@v1
       with:
         method: kubeconfig
-        kubeconfig: ${{ inputs.KUBE_CONFIG }}
+        kubeconfig: ${{ steps.kubeconfig.outputs.kubeconfig }}
 
     - uses: azure/setup-kubectl@v2.0
       with:

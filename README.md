@@ -31,8 +31,4 @@ jobs:
           container_args: '["-I", "https://www.dignio.com"]'
           secretsmanager: true
           cluster_name: demo-cluster
-
-          # === Required secrets
-          # This has to be a base64 encoded kube config file
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
 ```
