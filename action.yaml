@@ -104,7 +104,7 @@ runs:
       uses: aws-actions/configure-aws-credentials@v1
       with:
         role-to-assume: ${{ inputs.aws_role }}
-        role-session-name: GithubActionsSessionKubernetes
+        role-session-name: GithubActionsSession
         aws-region: ${{ inputs.aws_region }}
 
     - name: Authenticate with Kubernetes
