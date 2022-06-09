@@ -106,9 +106,9 @@ runs:
       id: kubeconfig
       shell: bash
       run: |
-        aws eks update-kubeconfig --name=${{ inputs.cluster_name }} --region=${{ inputs.aws_region }} --role-arn=${{ inputs.aws_role }} --kubeconfig=/tmp/config
+        aws eks update-kubeconfig --name=${{ inputs.cluster_name }} --region=${{ inputs.aws_region }} --role-arn=${{ inputs.aws_role }} --kubeconfig=/tmp/kubeconfig
 
-        kubeconfig=$(cat /tmp/config)
+        kubeconfig=$(cat /tmp/kubeconfig | tr -d '\n')
 
         echo "::set-output name=kubeconfig::$kubeconfig"
 
