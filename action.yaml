@@ -110,13 +110,15 @@ runs:
 
         kubeconfig="$(cat /tmp/kubeconfig)"
 
-        echo '::set-output name=kubeconfig::"$kubeconfig"'
+        echo "DYNAMIC_KUBECONFIG<<EOF" >> $GITHUB_ENV
+        echo "$kubeconfig" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
 
     - name: Authenticate with Kubernetes
       uses: azure/k8s-set-context@v1
       with:
         method: kubeconfig
-        kubeconfig: ${{ steps.kubeconfig.outputs.kubeconfig }}
+        kubeconfig: ${{ env.DYNAMIC_KUBECONFIG }}
 
     - name: Debug by posting the results to hemmelig
       shell: bash
