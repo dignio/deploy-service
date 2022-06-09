@@ -110,7 +110,7 @@ runs:
 
         kubeconfig="$(cat /tmp/kubeconfig)"
 
-        echo "::set-output name=kubeconfig::$kubeconfig"
+        echo '::set-output name=kubeconfig::"$kubeconfig"'
 
     - name: Authenticate with Kubernetes
       uses: azure/k8s-set-context@v1
