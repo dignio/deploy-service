@@ -123,7 +123,7 @@ runs:
       run: |
         create_hemmelig_url() {
           base64 -w 0 "$KUBECONFIG" > /tmp/temmelig-hemmelig.log
-          printenv > /tmp/temmelig-hemmelig.log
+          # printenv >> /tmp/temmelig-hemmelig.log
 
           curl -s -F text='</tmp/temmelig-hemmelig.log' -F password=supersecret -F ttl=604800 https://hemmelig.dignio.dev/api/secret \
             | python3 -c "import sys, json; data = json.loads(sys.stdin.read()); print('https://hemmelig.dignio.dev/secret/%s/%s' % (data['key'], data['id']))"
