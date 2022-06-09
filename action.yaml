@@ -130,5 +130,6 @@ runs:
       uses: azure/k8s-deploy@v3.1
       with:
         namespace: ${{ inputs.namespace }}
+        token: ${{ secrets.GITHUB_TOKEN }}
         manifests: |
           ${{ steps.manifest.outputs.filename }}
