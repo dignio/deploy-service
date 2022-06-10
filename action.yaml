@@ -110,7 +110,7 @@ runs:
         account_id="$(aws sts get-caller-identity --query Account --output text)"
 
         # By running this command we are fetching the kube configuration for the github oidc user
-        # The OIDC user session is connected tot the KubeGithubDeployment role for access to download the configuration
+        # The OIDC user session is connected to the KubeGithubDeployment role for access to download the configuration
         # Note, this is a short lived kubeconfig.
         aws eks update-kubeconfig --name=${{ inputs.cluster_name }} --region=${{ inputs.aws_region }} --role-arn="arn:aws:iam::$account_id:role/KubeGithubDeployment" --kubeconfig=/tmp/kubeconfig
 
