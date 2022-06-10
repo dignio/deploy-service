@@ -101,17 +101,22 @@ runs:
         role-session-name: GithubActionsSession
         aws-region: ${{ inputs.aws_region }}
 
-    # === Dynamically create the kube config
-    - name: Create the kube config
+    # === Dynamically create the kubeconfig
+    - name: Create the kubeconfig
       id: kubeconfig
       shell: bash
       run: |
-        accound_id="$(aws sts get-caller-identity --query Account --output text)"
+        # fetch the aws account id
+        account_id="$(aws sts get-caller-identity --query Account --output text)"
 
-        aws eks update-kubeconfig --name=${{ inputs.cluster_name }} --region=${{ inputs.aws_region }} --role-arn="arn:aws:iam::$accound_id:role/KubeGithubDeployment" --kubeconfig=/tmp/kubeconfig
+        # By running this command we are fetching the kube configuration for the github oidc user
+        # The OIDC user session is connected tot the KubeGithubDeployment role for access to download the configuration
+        # Note, this is a short lived kubeconfig.
+        aws eks update-kubeconfig --name=${{ inputs.cluster_name }} --region=${{ inputs.aws_region }} --role-arn="arn:aws:iam::$account_id:role/KubeGithubDeployment" --kubeconfig=/tmp/kubeconfig
 
         kubeconfig="$(cat /tmp/kubeconfig)"
 
+        # A hack to add the multiline configuration as an env variable
         echo "DYNAMIC_KUBECONFIG<<EOF" >> $GITHUB_ENV
         echo "$kubeconfig" >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
