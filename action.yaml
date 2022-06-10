@@ -6,14 +6,17 @@ inputs:
   app_name:
     description: The application name
     required: true
+  instance:
+    description: The instance. I.e. development
+    required: true
   service_type:
     description: The service type. I.e. webservice
     required: true
-  instance:
-    description: What instance to deploy to. I.e. development
-    required: true
   namespace:
     description: The Kubernetes namespace
+    required: true
+  cluster_name:
+    description: The cluster name
     required: true
   docker_image:
     description: The docker image tag URL
@@ -21,11 +24,11 @@ inputs:
   aws_region:
     description: AWS region where the EKS cluster lives
     required: true
+  aws_role:
+    description: The role used to grant access to AWS
+    required: true
 
   # === Optional
-  healthcheck_path:
-    description: Your healthcheck path. I.e. /healthz
-    required: false
   replicas:
     description: How many replicas you need
     required: false
@@ -35,26 +38,22 @@ inputs:
   container_port:
     description: The Kubernetes application pod port
     required: false
-  ingress:
-    description: Should it has its own ingress?
+  container_size:
+    description: The size of the container. CPU/Memory. small|medium|large|xlarge
     required: false
-  ingress_host:
-    description: The host connected to the ingress
+    default: ''
+  container_command:
+    description: The command to be passed to the docker container "['curl']"
     required: false
-  ingress_path:
-    description: The application path
+    default: ''
+  container_args:
+    description: The args to be passed to the docker container "['-I', 'https://www.google.com']"
     required: false
-
-  # === Secret time, these secrets is required and needed to make the deploy work
-  AWS_ACCESS_KEY_ID:
-    description: The AWS access key
-    required: true
-  AWS_SECRET_ACCESS_KEY:
-    description: The AWS secret key
-    required: true
-  KUBE_CONFIG:
-    description: The base64 encoded kube config file
-    required: true
+    default: ''
+  secretsmanager:
+    description: Enable secrets manager. To fetch secrets you have to provide the cluster name.
+    required: false
+    default: 'false'
 
 runs:
   using: composite
@@ -62,27 +61,27 @@ runs:
     - name: Create the Manifest filename
       shell: bash
       id: manifest
-      run: echo "::set-output name=filename::${{ inputs.instance }}.k8s.manifest.yaml"
+      run: echo "::set-output name=filename::${{ inputs.instance }}-${{ inputs.app_name }}.k8s.manifest.yaml"
 
-    - uses: dignio/generate-manifest@v2.2.1
+    - uses: dignio/generate-manifest@v3
       name: Generate the Kubernetes manifest
       id: generate_manifest
       with:
         # === These must be specified for the action to work
         app_name: ${{ inputs.app_name }}
         service_type: ${{ inputs.service_type }}
-        instance: ${{ inputs.instance }}
         namespace: ${{ inputs.namespace }}
         docker_image: ${{ inputs.docker_image }}
 
         # === These are optional
-        healthcheck_path: ${{ inputs.healthcheck_path }}
         replicas: ${{ inputs.replicas }}
         port: ${{ inputs.port }}
         container_port: ${{ inputs.container_port }}
-        ingress: ${{ inputs.ingress }}
-        ingress_host: ${{ inputs.ingress_host }}
-        ingress_path: ${{ inputs.ingress_path }}
+        container_size: ${{ inputs.container_size }}
+        container_command: ${{ inputs.container_command }}
+        container_args: ${{ inputs.container_args }}
+        secretsmanager: ${{ inputs.secretsmanager }}
+        cluster_name: ${{ inputs.cluster_name }}
 
     - name: Echo the manifest output to a file
       shell: bash
@@ -91,22 +90,42 @@ runs:
     - name: Upload the manifest as an artifact
       uses: actions/upload-artifact@v2
       with:
-        name: "${{ inputs.instance }}-k8s-manifest"
+        name: "${{ steps.manifest.outputs.filename }}"
         path: "${{ steps.manifest.outputs.filename }}"
 
     # === Configure AWS for the deploy
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
-        aws-access-key-id: ${{ inputs.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ inputs.AWS_SECRET_ACCESS_KEY }}
+        role-to-assume: ${{ inputs.aws_role }}
+        role-session-name: GithubActionsSession
         aws-region: ${{ inputs.aws_region }}
+
+    # === Dynamically create the kubeconfig
+    - name: Create the kubeconfig
+      id: kubeconfig
+      shell: bash
+      run: |
+        # fetch the aws account id
+        account_id="$(aws sts get-caller-identity --query Account --output text)"
+
+        # By running this command we are fetching the kube configuration for the github oidc user
+        # The OIDC user session is connected to the KubeGithubDeployment role for access to download the configuration
+        # Note, this is a short lived kubeconfig.
+        aws eks update-kubeconfig --name=${{ inputs.cluster_name }} --region=${{ inputs.aws_region }} --role-arn="arn:aws:iam::$account_id:role/KubeGithubDeployment" --kubeconfig=/tmp/kubeconfig
+
+        kubeconfig="$(cat /tmp/kubeconfig)"
+
+        # A hack to add the multiline configuration as an env variable
+        echo "DYNAMIC_KUBECONFIG<<EOF" >> $GITHUB_ENV
+        echo "$kubeconfig" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
 
     - name: Authenticate with Kubernetes
       uses: azure/k8s-set-context@v1
       with:
         method: kubeconfig
-        kubeconfig: ${{ inputs.KUBE_CONFIG }}
+        kubeconfig: ${{ env.DYNAMIC_KUBECONFIG }}
 
     - uses: azure/setup-kubectl@v2.0
       with:
