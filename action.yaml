@@ -54,6 +54,10 @@ inputs:
     description: Enable secrets manager. To fetch secrets you have to provide the cluster name.
     required: false
     default: 'false'
+  fargate:
+    description: If fargate should be enabled. This input will be removed when we have migrated to node groups.
+    required: false
+    default: 'true'
 
 runs:
   using: composite
@@ -82,6 +86,7 @@ runs:
         container_args: ${{ inputs.container_args }}
         secretsmanager: ${{ inputs.secretsmanager }}
         cluster_name: ${{ inputs.cluster_name }}
+        fargate: ${{ inputs.fargate }}
 
     - name: Echo the manifest output to a file
       shell: bash
