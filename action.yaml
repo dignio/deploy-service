@@ -67,7 +67,7 @@ runs:
       id: manifest
       run: echo "::set-output name=filename::${{ inputs.instance }}-${{ inputs.app_name }}.k8s.manifest.yaml"
 
-    - uses: dignio/generate-manifest@v3.1.0
+    - uses: dignio/generate-manifest@v3
       name: Generate the Kubernetes manifest
       id: generate_manifest
       with:
