@@ -7,7 +7,7 @@ inputs:
     description: The application name
     required: true
   instance:
-    description: The instance. I.e. development
+    description: The instance running. Example here would be i.e. previews, development, api. It is used to select which node group we want to run the pod.
     required: true
   service_type:
     description: The service type. I.e. webservice
@@ -76,6 +76,7 @@ runs:
         service_type: ${{ inputs.service_type }}
         namespace: ${{ inputs.namespace }}
         docker_image: ${{ inputs.docker_image }}
+        instance: ${{ inputs.instance }}
 
         # === These are optional
         replicas: ${{ inputs.replicas }}
