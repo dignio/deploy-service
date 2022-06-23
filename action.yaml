@@ -27,6 +27,9 @@ inputs:
   aws_role:
     description: The role used to grant access to AWS
     required: true
+  nodegroup:
+    description: The node group it should be deployed to. Based on the Node Group instance tag. I.e. ng-development, ng-staging
+    required: true
 
   # === Optional
   replicas:
@@ -81,6 +84,7 @@ runs:
         namespace: ${{ inputs.namespace }}
         docker_image: ${{ inputs.docker_image }}
         instance: ${{ inputs.instance }}
+        nodegroup: ${{ inputs.nodegroup }}
 
         # === These are optional
         replicas: ${{ inputs.replicas }}
