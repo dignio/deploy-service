@@ -58,6 +58,10 @@ inputs:
     description: If fargate should be enabled. This input will be removed when we have migrated to node groups.
     required: false
     default: 'true'
+  schedule:
+    description: A cronjob schedule. I.e. "0 * * * *". To use this input, the service_type has to be set to "cronjob"
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -67,7 +71,7 @@ runs:
       id: manifest
       run: echo "::set-output name=filename::${{ inputs.instance }}-${{ inputs.app_name }}.k8s.manifest.yaml"
 
-    - uses: dignio/generate-manifest@v3
+    - uses: dignio/generate-manifest@PLAT-636/create-cronjob-generation
       name: Generate the Kubernetes manifest
       id: generate_manifest
       with:
@@ -88,6 +92,7 @@ runs:
         secretsmanager: ${{ inputs.secretsmanager }}
         cluster_name: ${{ inputs.cluster_name }}
         fargate: ${{ inputs.fargate }}
+        schedule: ${{ inputs.schedule }}
 
     - name: Echo the manifest output to a file
       shell: bash
