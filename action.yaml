@@ -27,6 +27,9 @@ inputs:
   aws_role:
     description: The role used to grant access to AWS
     required: true
+  nodegroup:
+    description: The node group it should be deployed to. Based on the Node Group instance tag. I.e. ng-development, ng-staging
+    required: false # not required yet
 
   # === Optional
   replicas:
@@ -58,6 +61,10 @@ inputs:
     description: If fargate should be enabled. This input will be removed when we have migrated to node groups.
     required: false
     default: 'true'
+  schedule:
+    description: A cronjob schedule. I.e. "0 * * * *". To use this input, the service_type has to be set to "cronjob"
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -77,6 +84,7 @@ runs:
         namespace: ${{ inputs.namespace }}
         docker_image: ${{ inputs.docker_image }}
         instance: ${{ inputs.instance }}
+        nodegroup: ${{ inputs.nodegroup }}
 
         # === These are optional
         replicas: ${{ inputs.replicas }}
@@ -88,6 +96,7 @@ runs:
         secretsmanager: ${{ inputs.secretsmanager }}
         cluster_name: ${{ inputs.cluster_name }}
         fargate: ${{ inputs.fargate }}
+        schedule: ${{ inputs.schedule }}
 
     - name: Echo the manifest output to a file
       shell: bash
